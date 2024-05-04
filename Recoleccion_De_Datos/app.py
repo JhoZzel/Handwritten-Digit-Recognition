@@ -1,6 +1,6 @@
 import tempfile
 import os
-from flask import Flask, request, redirect, send_file
+from flask import Flask, render_template_string, request, redirect, send_file
 from skimage import io
 import base64
 import glob
@@ -24,7 +24,7 @@ main_html = """
       ctx = document.getElementById('myCanvas').getContext("2d");
 
 
-      numero = getRndInteger(0, 15);
+      numero = getRndInteger(0, 20);
       letra = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
       random = Math.floor(Math.random() * letra.length);
       aleatorio = letra[random];
@@ -78,6 +78,7 @@ main_html = """
   }
 
 
+
 </script>
 <body onload="InitThis();">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
@@ -97,6 +98,11 @@ main_html = """
       <input id="numero" name="numero" type="hidden" value="">
       <input id="myImage" name="myImage" type="hidden" value="">
       <input id="bt_upload" type="submit" value="Enviar">
+      </form>
+    </div>
+    <div align="center">
+      <form method="get" action="prepare">
+      <input id="bt_prepare" type="submit" value="Preparar">
       </form>
     </div>
 </body>
@@ -125,6 +131,7 @@ def upload():
 
     return redirect("/", code=302)
 
+
 @app.route('/prepare', methods=['GET'])
 def prepare_dataset():
     images = []
@@ -141,7 +148,24 @@ def prepare_dataset():
     digits = np.concatenate(digits)
     np.save('X.npy', images)
     np.save('Y.npy', digits)
-    return "OK!"
+
+    ok_script = """
+    <script>
+        // Función para añadir un div "OK" a la página actual
+        function addOkDiv() {
+            var okDiv = document.createElement('div');
+            okDiv.textContent = 'OK, Presiona "Enviar" para agregar mas datos';
+            okDiv.style.textAlign = 'center';  // Centrar horizontalmente el texto
+            okDiv.style.margin = '0 auto';     // Centrar horizontalmente el contenedor div
+            document.body.appendChild(okDiv);
+        }
+
+        // Llamar a la función para añadir el div "OK" al cargar la página
+        window.onload = addOkDiv;
+    </script>
+    """
+
+    return render_template_string(main_html + ok_script)
 
 @app.route('/X.npy', methods=['GET'])
 def download_X():
