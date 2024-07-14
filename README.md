@@ -1,4 +1,4 @@
-# PC02 Computación Gráfica 2024
+# Handwritten-Digit-Recognition
 
 ## Integrantes
 - Aguado Gutiérrez Cleber Lee
